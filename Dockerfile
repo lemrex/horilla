@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y libcairo2-dev gcc
 
 WORKDIR /app/
 
-COPY . .
+COPY . ./app/
 
 RUN chmod +x /app/entrypoint.sh
 

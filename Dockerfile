@@ -2,16 +2,28 @@ FROM python:3.10-slim-bullseye
 
 ENV PYTHONUNBUFFERED=1
 
-RUN apt-get update && apt-get install -y libcairo2-dev gcc
+# Install system dependencies (libcairo + compiler + others you may need)
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libcairo2-dev \
+    libpq-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app/
+WORKDIR /app
 
+# Copy only requirements first (to leverage Docker cache)
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Now copy the rest of your app
 COPY . .
 
+# Make entrypoint executable
 RUN chmod +x /app/entrypoint.sh
-
-RUN pip install -r requirements.txt
 
 EXPOSE 8000
 
-CMD ["python3", "manage.py", "runserver"]
+CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
